@@ -1,2 +1,2 @@
-# AI-
+# AI-learning-assistant
 可以帮助大家做AI学习的记录和分析，包括：记笔记、AI问答、资料库、测评、进度、报告
