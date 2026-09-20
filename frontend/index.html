@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI学习助手</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">AI学习助手</div>
+
+      <nav class="navbar-tabs" id="nav-tabs" aria-label="主导航">
+        <a class="nav-tab" href="#/notes" data-route="notes">记笔记</a>
+        <a class="nav-tab" href="#/study" data-route="study">学习</a>
+        <a class="nav-tab" href="#/materials" data-route="materials">资料库</a>
+        <a class="nav-tab" href="#/quiz" data-route="quiz">测评</a>
+        <a class="nav-tab" href="#/progress" data-route="progress">进度</a>
+        <a class="nav-tab" href="#/reports" data-route="reports">报告</a>
+      </nav>
+
+      <!-- 后台连接状态指示灯：连上绿色，断开红色 -->
+      <div class="status-dot" id="status-dot" role="status" aria-label="后台连接状态" title="后台连接状态"></div>
+    </div>
+  </header>
+
+  <!-- 页面主体 -->
+  <main class="main">
+    <section class="page" id="page-notes" data-page="notes">
+      <div class="notes-layout">
+        <!-- 左侧：笔记目录（按学习日期分组，可收起/展开，右键删除） -->
+        <aside class="notes-sidebar">
+          <div class="sidebar-header">
+            <span>笔记目录</span>
+            <button class="btn btn-primary btn-sm" id="note-new-btn" type="button">新增笔记</button>
+          </div>
+          <div class="notes-tree" id="notes-tree">
+            <div class="notes-empty">加载中...</div>
+          </div>
+        </aside>
+
+        <!-- 右侧：编辑区 -->
+        <div class="notes-editor">
+          <div class="editor-meta">
+            <input id="note-title" class="input" type="text" placeholder="笔记标题">
+            <input id="note-date" class="input" type="date" title="学习日期">
+          </div>
+
+          <div class="editor-toolbar" id="editor-toolbar">
+            <button class="toolbar-btn" type="button" data-cmd="formatBlock" data-value="<h1>" title="一级标题">H1</button>
+            <button class="toolbar-btn" type="button" data-cmd="formatBlock" data-value="<h2>" title="二级标题">H2</button>
+            <button class="toolbar-btn" type="button" data-cmd="formatBlock" data-value="<h3>" title="三级标题">H3</button>
+            <button class="toolbar-btn" type="button" data-cmd="formatBlock" data-value="<p>" title="正文">正文</button>
+            <span class="toolbar-divider"></span>
+            <button class="toolbar-btn" type="button" data-cmd="bold" title="加粗"><b>B</b></button>
+            <button class="toolbar-btn" type="button" data-cmd="italic" title="斜体"><i>I</i></button>
+            <button class="toolbar-btn" type="button" data-cmd="underline" title="下划线"><u>U</u></button>
+            <span class="toolbar-divider"></span>
+            <button class="toolbar-btn" type="button" id="insert-image-btn" title="插入图片">图片</button>
+            <button class="toolbar-btn" type="button" id="insert-table-btn" title="插入表格">表格</button>
+            <input type="file" id="image-file-input" accept="image/*" hidden>
+            <div class="table-popover" id="table-popover" hidden>
+              行 <input type="number" id="table-rows" class="input" value="3" min="1" max="10">
+              列 <input type="number" id="table-cols" class="input" value="3" min="1" max="10">
+              <button class="btn btn-primary btn-sm" id="table-insert-confirm" type="button">插入</button>
+            </div>
+          </div>
+
+          <div class="editor-body" id="note-content" contenteditable="true"
+               data-placeholder="在这里输入笔记内容，可用上方工具栏设置标题、加粗、插入图片和表格..."></div>
+        </div>
+      </div>
+
+      <!-- 页面右下方：取消 / 保存 -->
+      <div class="notes-actions">
+        <button class="btn btn-secondary" id="note-cancel-btn" type="button">取消</button>
+        <button class="btn btn-primary" id="note-save-btn" type="button">保存</button>
+      </div>
+    </section>
+
+    <section class="page" id="page-study" data-page="study">
+      <div class="study-layout">
+        <!-- 左侧：历史对话区（20%） -->
+        <aside class="chat-history">
+          <div class="history-header">历史对话</div>
+          <div class="history-list" id="chat-history-list">
+            <div class="history-empty">暂无历史对话</div>
+          </div>
+        </aside>
+
+        <!-- 右侧：聊天主区 -->
+        <div class="chat-main">
+          <div class="chat-toolbar">
+            <select id="chat-material-select" class="select" title="选择要聊的资料">
+              <option value="">默认对话（不引用资料）</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" id="chat-new-btn" type="button">新对话</button>
+          </div>
+
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-welcome" id="chat-welcome">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 20l1.2-4.1A8.5 8.5 0 1 1 21 11.5z"/>
+              </svg>
+              <p class="welcome-title">开始向 AI 导师提问吧</p>
+              <p class="welcome-sub">可在上方选择一份资料，回答将基于资料内容并标注来源；不选资料则为普通对话</p>
+            </div>
+          </div>
+
+          <div class="chat-input-area">
+            <textarea id="chat-input" class="textarea" rows="2"
+                      placeholder="输入问题，回车发送，Shift + 回车换行"></textarea>
+            <button class="btn btn-primary" id="chat-send-btn" type="button">发送</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-materials" data-page="materials">
+      <!-- 上传区：虚线框，拖拽或点击上传，悬停边框变金色 -->
+      <div class="upload-zone" id="upload-zone">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p class="upload-main">拖拽文件到此处，或 <span class="upload-click">点击选择文件</span> 上传</p>
+        <p class="upload-hint">支持 PDF / PPT / Word / Markdown / TXT 格式，可多选</p>
+        <input type="file" id="material-file-input" multiple hidden
+               accept=".pdf,.ppt,.pptx,.doc,.docx,.md,.txt">
+      </div>
+
+      <!-- 资料列表 -->
+      <div class="material-list" id="material-list">
+        <div class="materials-empty">加载中...</div>
+      </div>
+    </section>
+
+    <section class="page" id="page-quiz" data-page="quiz">
+      <!-- 第一步：开始前 -->
+      <div class="quiz-step" id="quiz-setup">
+        <div class="card quiz-setup-card">
+          <h2 class="quiz-setup-title">开始一次测评</h2>
+          <div class="setup-block">
+            <div class="setup-label">选择要测的资料（可多选，仅限解析完成的）</div>
+            <div class="material-chips" id="quiz-material-chips">
+              <div class="materials-empty">加载中...</div>
+            </div>
+          </div>
+          <div class="setup-block">
+            <div class="setup-label">题目数量</div>
+            <div class="count-options" id="quiz-count-options">
+              <button type="button" class="chip" data-count="5">5 道</button>
+              <button type="button" class="chip" data-count="8">8 道</button>
+              <button type="button" class="chip selected" data-count="10">10 道</button>
+              <button type="button" class="chip" data-count="15">15 道</button>
+            </div>
+          </div>
+          <button class="btn btn-primary quiz-start-btn" id="quiz-start-btn" type="button">开始测试</button>
+          <div class="quiz-generating" id="quiz-generating" hidden>
+            正在生成测试题<span class="thinking-dots"><span></span><span></span><span></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二步：答题中 -->
+      <div class="quiz-step" id="quiz-answering" hidden>
+        <div class="quiz-statusbar">
+          <span id="quiz-progress">已答 0 / 0 题</span>
+          <span id="quiz-timer">用时 00:00</span>
+        </div>
+        <div id="quiz-questions"></div>
+        <div class="quiz-generating" id="quiz-grading" hidden>
+          正在出结果<span class="thinking-dots"><span></span><span></span><span></span></span>
+        </div>
+        <div class="quiz-actions">
+          <button class="btn btn-secondary" id="quiz-quit-btn" type="button">放弃</button>
+          <button class="btn btn-primary" id="quiz-submit-btn" type="button">提交</button>
+        </div>
+      </div>
+
+      <!-- 第三步：看结果 -->
+      <div class="quiz-step" id="quiz-result" hidden>
+        <div class="card result-card">
+          <div class="score-ring" id="score-ring"></div>
+          <div class="result-stats" id="result-stats"></div>
+        </div>
+        <div id="result-questions"></div>
+        <div class="quiz-actions">
+          <button class="btn btn-primary" id="quiz-again-btn" type="button">再测一次</button>
+        </div>
+        <h3 class="history-title">历史测评记录</h3>
+        <div id="quiz-history"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-progress" data-page="progress">
+      <!-- 顶部统计卡片 -->
+      <div class="stat-cards" id="progress-stat-cards">
+        <div class="card stat-card">加载中...</div>
+      </div>
+
+      <!-- 中部：雷达图 + 知识点列表 -->
+      <div class="progress-middle">
+        <div class="card radar-card">
+          <div class="panel-title">知识点掌握雷达图</div>
+          <div id="progress-radar"></div>
+        </div>
+        <div class="card kp-card">
+          <div class="panel-title">知识点掌握情况</div>
+          <div id="kp-list"></div>
+        </div>
+      </div>
+
+      <!-- 薄弱知识点 -->
+      <div class="card weak-card">
+        <div class="panel-title">薄弱知识点</div>
+        <div class="weak-chips" id="weak-list"></div>
+      </div>
+
+      <!-- 每份资料的笔记（自动保存） -->
+      <div class="panel-title material-notes-title">资料笔记（输入后自动保存，无需手动保存）</div>
+      <div id="material-notes"></div>
+    </section>
+
+    <section class="page" id="page-reports" data-page="reports">
+      <!-- 生成设置 -->
+      <div class="card report-setup-card">
+        <div class="setup-block">
+          <div class="setup-label">报告时间范围</div>
+          <div class="report-range-options" id="report-range-options">
+            <button type="button" class="chip selected" data-range="week">本周</button>
+            <button type="button" class="chip" data-range="custom">自定义</button>
+          </div>
+          <div class="report-date-inputs" id="report-date-inputs" hidden>
+            <input type="date" id="report-start" class="input">
+            <span class="report-date-sep">至</span>
+            <input type="date" id="report-end" class="input">
+          </div>
+        </div>
+        <button class="btn btn-primary report-generate-btn" id="report-generate-btn" type="button">生成报告</button>
+        <div class="quiz-generating" id="report-generating" hidden>
+          正在生成报告<span class="thinking-dots"><span></span><span></span><span></span></span>
+        </div>
+      </div>
+
+      <!-- 报告展示 -->
+      <div class="card report-view" id="report-view" hidden>
+        <div class="report-view-head">
+          <div>
+            <div class="report-view-title">学习周报</div>
+            <div class="report-view-sub" id="report-view-sub"></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="report-download-btn" type="button">下载</button>
+        </div>
+        <div class="report-content" id="report-content"></div>
+      </div>
+
+      <!-- 历史报告 -->
+      <h3 class="history-title">历史报告</h3>
+      <div id="report-history"></div>
+    </section>
+  </main>
+
+  <!-- 全局轻提示：aria-live 让屏幕阅读器自动播报 -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/study.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

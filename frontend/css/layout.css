@@ -1,0 +1,101 @@
+/* ============================================
+   layout.css —— 页面布局：导航栏 + 主体
+   ============================================ */
+
+/* 顶部导航栏 */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 100;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 32px;
+}
+
+.navbar-brand {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+/* Tab 导航 */
+.navbar-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 14px;
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-tab:hover {
+  color: var(--color-text);
+}
+
+/* 键盘 Tab 聚焦：Tab 是全宽高度，改用内描边避免溢出导航栏 */
+.nav-tab:focus-visible {
+  outline-offset: -3px;
+}
+
+.nav-tab.active {
+  color: var(--color-primary);
+  font-weight: 500;
+  border-bottom-color: var(--color-primary);
+}
+
+/* 状态灯：右角小圆点 */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-border); /* 初始：未检测 */
+  flex-shrink: 0;
+  transition: background-color 0.3s;
+}
+
+.status-dot.connected {
+  background-color: var(--color-success);
+}
+
+.status-dot.disconnected {
+  background-color: var(--color-danger);
+}
+
+/* 主体区域 */
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(var(--navbar-height) + 24px) 24px 40px;
+}
+
+/* 页面切换：默认隐藏，路由激活才显示 */
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
